@@ -15,7 +15,7 @@ However, she no longer has the time to work on it so I am it's new maintainer.
 Use `drive help` for further reference.
 
 	$ drive init [path]
-	$ drive pull [-r -no-prompt path] # pulls from remote
+	$ drive pull [-r -hidden -no-prompt path] # pulls from remote
 	$ drive pull [-r -no-prompt -export ext1,ext2,ext3 -export-dir <export-dir> path] # pulls from remote and exports Docs + Sheets to one of its export formats.
     e.g:
 	$ drive pull [-r -no-prompt -export pdf,docx,rtf,html ReportII.txt] # pull ReportII.txt from
@@ -29,7 +29,7 @@ Use `drive help` for further reference.
 	$ drive push -m $LOCATION .
     e.g
         `drive push -m /mnt/media`
-	$ drive diff [path] # outputs a diff of local and remote
+	$ drive diff [-r -hidden path] # outputs a diff of local and remote
 	$ drive pub [path] # publishes a file, outputs URL
 	$ drive unpub [path] # revokes public access to the file
 

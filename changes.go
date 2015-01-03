@@ -119,7 +119,7 @@ func (g *Commands) changeListResolve(isPush bool) (cl []*Change, err error) {
 	}
 
 	fmt.Println("Resolving...")
-	cl, err = g.resolveChangeListRecv(isPush, relPath, relPath, r, l)
+	cl, err = g.resolveChangeListRecv(isPush, relPath, relPath, r, l, true)
 	if err != nil {
 		return
 	}
@@ -185,7 +185,7 @@ func lonePush(g *Commands, parent, absPath, path string) (cl []*Change, err erro
 		l = NewLocalFile(absPath, localinfo)
 	}
 
-	return g.resolveChangeListRecv(true, parent, absPath, r, l)
+	return g.resolveChangeListRecv(true, parent, absPath, r, l, true)
 }
 
 func (g *Commands) resolveTrashChangeList(trashed bool, p string, r *File) (cl []*Change, err error) {
@@ -209,7 +209,7 @@ func (g *Commands) resolveTrashChangeList(trashed bool, p string, r *File) (cl [
 		f = g.rem.FindByParentIdTrashed
 	}
 	if r != nil {
-		if remoteChildren, err = f(r.Id); err != nil {
+		if remoteChildren, err = f(r.Id, g.opts.Hidden); err != nil {
 			return
 		}
 	}
@@ -229,7 +229,7 @@ func (g *Commands) resolveTrashChangeList(trashed bool, p string, r *File) (cl [
 }
 
 func (g *Commands) resolveChangeListRecv(
-	isPush bool, d, p string, r *File, l *File) (cl []*Change, err error) {
+	isPush bool, d, p string, r *File, l *File, isTop bool) (cl []*Change, err error) {
 	var change *Change
 	if isPush {
 		// Handle the case of doc files for which we don't have a direct download
@@ -241,11 +241,11 @@ func (g *Commands) resolveChangeListRecv(
 	} else {
 		change = &Change{Path: p, Src: r, Dest: l, Parent: d}
 	}
-
+	
 	if change.CoercedOp(g.opts.NoClobber) != OpNone {
 		cl = append(cl, change)
 	}
-	if !g.opts.IsRecursive {
+	if !g.opts.IsRecursive && !isTop {
 		return cl, nil
 	}
 	// TODO: handle cases where remote and local type don't match
@@ -268,7 +268,7 @@ func (g *Commands) resolveChangeListRecv(
 
 	var remoteChildren []*File
 	if r != nil {
-		if remoteChildren, err = g.rem.FindByParentId(r.Id); err != nil {
+		if remoteChildren, err = g.rem.FindByParentId(r.Id, g.opts.Hidden); err != nil {
 			return
 		}
 	}
@@ -287,7 +287,7 @@ func (g *Commands) resolveChangeListRecv(
 			} else {
 				joined = strings.Join([]string{p, l.Name()}, "/")
 			}
-			childChanges, _ := g.resolveChangeListRecv(isPush, p, joined, l.remote, l.local)
+			childChanges, _ := g.resolveChangeListRecv(isPush, p, joined, l.remote, l.local, false)
 			*cl = append(*cl, childChanges...)
 		}(&wg, isPush, &cl, p, l)
 	}

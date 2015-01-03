@@ -66,6 +66,7 @@ func (cmd *initCmd) Run(args []string) {
 type pullCmd struct {
 	exportsDir  *string
 	export      *string
+	hidden      *bool
 	isRecursive *bool
 	isNoPrompt  *bool
 	noClobber   *bool
@@ -75,6 +76,7 @@ func (cmd *pullCmd) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	cmd.noClobber = fs.Bool("no-clobber", false, "prevents overwriting of old content")
 	cmd.export = fs.String(
 		"export", "", "comma separated list of formats to export your docs + sheets files")
+	cmd.hidden = fs.Bool("hidden", false, "allows syncing of hidden paths")
 	cmd.isRecursive = fs.Bool("r", true, "performs the pull action recursively")
 	cmd.isNoPrompt = fs.Bool("no-prompt", false, "shows no prompt before applying the pull action")
 	cmd.exportsDir = fs.String("export-dir", "", "directory to place exports")
@@ -101,6 +103,7 @@ func (cmd *pullCmd) Run(args []string) {
 		Exports:     exports,
 		ExportsDir:  strings.Trim(*cmd.exportsDir, " "),
 		IsNoPrompt:  *cmd.isNoPrompt,
+		Hidden:      *cmd.hidden,
 		IsRecursive: *cmd.isRecursive,
 		NoClobber:   *cmd.noClobber,
 		Path:        path,
@@ -179,16 +182,22 @@ func pushMounted(cmd *pushCmd, args []string) {
 	}).Push())
 }
 
-type diffCmd struct{}
+type diffCmd struct{
+	hidden      *bool
+	isRecursive *bool
+}
 
 func (cmd *diffCmd) Flags(fs *flag.FlagSet) *flag.FlagSet {
+	cmd.hidden = fs.Bool("hidden", false, "allows syncing of hidden paths")
+	cmd.isRecursive = fs.Bool("r", true, "performs the push action recursively")
 	return fs
 }
 
 func (cmd *diffCmd) Run(args []string) {
 	context, path := discoverContext(args)
 	exitWithError(drive.New(context, &drive.Options{
-		IsRecursive: true,
+		Hidden:      *cmd.hidden,
+		IsRecursive: *cmd.isRecursive,
 		Path:        path,
 	}).Diff())
 }
