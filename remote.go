@@ -154,29 +154,38 @@ func (r *Remote) FindByPathTrashed(p string) (file *File, err error) {
 	return r.findByPathTrashed("root", parts[1:])
 }
 
-func (r *Remote) findByParentIdRaw(parentId string, trashed bool) (files []*File, err error) {
-	req := r.service.Files.List()
+func (r *Remote) findByParentIdRaw(parentId string, trashed bool) ([]*File, error) {
+	pageToken := ""
+	var files []*File
+	for {
+	    req := r.service.Files.List()
 
-	// TODO: use field selectors
-	var expr string
-	if trashed {
-		expr = fmt.Sprintf("'%s' in parents and trashed=true", parentId)
-	} else {
-		expr = fmt.Sprintf("'%s' in parents and trashed=false", parentId)
-	}
+	    // TODO: use field selectors
+	    var expr string
+	    if trashed {
+		    expr = fmt.Sprintf("'%s' in parents and trashed=true", parentId)
+	    } else {
+		    expr = fmt.Sprintf("'%s' in parents and trashed=false", parentId)
+	    }
 
-	req.Q(expr)
-	results, err := req.Do()
-	// TODO: handle paging
-	if err != nil {
-		return
-	}
-	for _, f := range results.Items {
-		if !strings.HasPrefix(f.Title, ".") { // ignore hidden files
-			files = append(files, NewRemoteFile(f))
+	    req.Q(expr)
+	    if pageToken != "" {
+			req.PageToken(pageToken)
 		}
-	}
-	return
+	    results, err := req.Do()
+	    if err != nil {
+	        return files, err
+	    }
+	    for _, f := range results.Items {
+		    if !strings.HasPrefix(f.Title, ".") { // ignore hidden files
+			    files = append(files, NewRemoteFile(f))
+		    }
+	    }
+	    pageToken = results.NextPageToken
+	    if pageToken == "" {
+		    return files, err
+	    }
+    }
 }
 
 func (r *Remote) FindByParentId(parentId string) (files []*File, err error) {
