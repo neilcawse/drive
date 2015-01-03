@@ -23,8 +23,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/odeke-em/drive"
-	"github.com/odeke-em/drive/config"
+	"github.com/neilcawse/drive"
+	"github.com/neilcawse/drive/config"
 	"github.com/rakyll/command"
 )
 

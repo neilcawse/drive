@@ -20,7 +20,7 @@ import (
 	gopath "path"
 	"strings"
 
-	"github.com/odeke-em/drive/config"
+	"github.com/neilcawse/drive/config"
 )
 
 // Pushes to remote if local path exists and in a gd context. If path is a

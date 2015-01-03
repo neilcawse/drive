@@ -19,7 +19,7 @@ import (
 	"path"
 
 	"github.com/cheggaaa/pb"
-	"github.com/odeke-em/drive/config"
+	"github.com/neilcawse/drive/config"
 )
 
 var (

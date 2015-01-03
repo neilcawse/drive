@@ -27,7 +27,7 @@ import (
 
 	"code.google.com/p/goauth2/oauth"
 	drive "code.google.com/p/google-api-go-client/drive/v2"
-	"github.com/odeke-em/drive/config"
+	"github.com/neilcawse/drive/config"
 )
 
 const (
