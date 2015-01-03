@@ -28,7 +28,7 @@ import (
 // can accept for diffing (Arbitrary value)
 const MaxFileSize = 50 * 1024 * 1024
 
-var Ruler = strings.Repeat("*", 80)
+var Ruler = strings.Repeat("*", 10)
 
 func (g *Commands) Diff() (err error) {
 	var cl []*Change
